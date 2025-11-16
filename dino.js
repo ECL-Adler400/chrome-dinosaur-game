@@ -18,20 +18,15 @@ let dino = {
     height : dinoHeight
 }
 
-//cactus
-let cactusArray = [];
+//carrot
+let carrotArray = [];
 
-let cactus1Width = 34;
-let cactus2Width = 69;
-let cactus3Width = 102;
+let carrotWidth = 40;
+let carrotHeight = 50;
+let carrotX = 700;
+let carrotY = boardHeight - carrotHeight;
 
-let cactusHeight = 70;
-let cactusX = 700;
-let cactusY = boardHeight - cactusHeight;
-
-let cactus1Img;
-let cactus2Img;
-let cactus3Img;
+let carrotImg;
 
 //physics
 let velocityX = -8; //cactus moving left speed
@@ -58,18 +53,14 @@ window.onload = function() {
         context.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
     }
 
-    cactus1Img = new Image();
-    cactus1Img.src = "./img/cactus1.png";
-
-    cactus2Img = new Image();
-    cactus2Img.src = "./img/cactus2.png";
-
-    cactus3Img = new Image();
-    cactus3Img.src = "./img/cactus3.png";
+    carrotImg = new Image();
+    carrotImg.src = "./img/carrot.png";
 
     requestAnimationFrame(update);
-    setInterval(placeCactus, 1000); //1000 milliseconds = 1 second
+    setInterval(placeCarrot, 1000); //1000 milliseconds = 1 second
     document.addEventListener("keydown", moveDino);
+    document.addEventListener("touchstart", handleTouchStart);
+    document.addEventListener("click", handleClick);
 }
 
 function update() {
@@ -84,26 +75,32 @@ function update() {
     dino.y = Math.min(dino.y + velocityY, dinoY); //apply gravity to current dino.y, making sure it doesn't exceed the ground
     context.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
 
-    //cactus
-    for (let i = 0; i < cactusArray.length; i++) {
-        let cactus = cactusArray[i];
-        cactus.x += velocityX;
-        context.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height);
+    //carrot
+    for (let i = 0; i < carrotArray.length; i++) {
+        let carrot = carrotArray[i];
+        carrot.x += velocityX;
+        context.drawImage(carrot.img, carrot.x, carrot.y, carrot.width, carrot.height);
 
-        if (detectCollision(dino, cactus)) {
-            gameOver = true;
-            dinoImg.src = "./img/unicorn.png";
-            dinoImg.onload = function() {
-                context.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
-            }
+        if (detectCollision(dino, carrot) && !carrot.collected) {
+            carrot.collected = true;
+            score += 100; // bonus points for collecting carrot
         }
     }
+    
+    // Remove collected carrots that are off screen
+    carrotArray = carrotArray.filter(carrot => carrot.x > -carrot.width && !carrot.collected);
 
     //score
     context.fillStyle="black";
     context.font="20px courier";
     score++;
     context.fillText(score, 5, 20);
+    
+    if (gameOver) {
+        context.fillStyle="black";
+        context.font="30px courier";
+        context.fillText("GAME OVER", boardWidth/2 - 80, boardHeight/2);
+    }
 }
 
 function moveDino(e) {
@@ -121,41 +118,58 @@ function moveDino(e) {
 
 }
 
-function placeCactus() {
+function placeCarrot() {
     if (gameOver) {
         return;
     }
 
-    //place cactus
-    let cactus = {
-        img : null,
-        x : cactusX,
-        y : cactusY,
-        width : null,
-        height: cactusHeight
+    //place carrot
+    let carrot = {
+        img : carrotImg,
+        x : carrotX,
+        y : carrotY,
+        width : carrotWidth,
+        height: carrotHeight,
+        collected: false
     }
 
-    let placeCactusChance = Math.random(); //0 - 0.9999...
+    let placeCarrotChance = Math.random(); //0 - 0.9999...
 
-    if (placeCactusChance > .90) { //10% you get cactus3
-        cactus.img = cactus3Img;
-        cactus.width = cactus3Width;
-        cactusArray.push(cactus);
-    }
-    else if (placeCactusChance > .70) { //30% you get cactus2
-        cactus.img = cactus2Img;
-        cactus.width = cactus2Width;
-        cactusArray.push(cactus);
-    }
-    else if (placeCactusChance > .50) { //50% you get cactus1
-        cactus.img = cactus1Img;
-        cactus.width = cactus1Width;
-        cactusArray.push(cactus);
+    if (placeCarrotChance > .50) { //50% chance to place a carrot
+        carrotArray.push(carrot);
     }
 
-    if (cactusArray.length > 5) {
-        cactusArray.shift(); //remove the first element from the array so that the array doesn't constantly grow
+    if (carrotArray.length > 5) {
+        carrotArray.shift(); //remove the first element from the array so that the array doesn't constantly grow
     }
+}
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    if (gameOver) {
+        resetGame();
+        return;
+    }
+    
+    // Jump on touch
+    if (dino.y == dinoY) {
+        velocityY = -10;
+    }
+}
+
+function handleClick(e) {
+    if (gameOver) {
+        resetGame();
+    }
+}
+
+function resetGame() {
+    gameOver = false;
+    score = 0;
+    carrotArray = [];
+    velocityY = 0;
+    dino.y = dinoY;
+    dinoImg.src = "./img/unicorn.png";
 }
 
 function detectCollision(a, b) {

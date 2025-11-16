@@ -1,9 +1,10 @@
 body {
     font-family:'Courier New', Courier, monospace;
     text-align: center;
+    background-color: #87CEEB; /* Sky blue background */
 }
 
 #board {
-    background-color: lightgray;
-    border-bottom: 1px solid black;
+    background-color: #87CEEB; /* Sky blue */
+    border-bottom: 5px solid #228B22; /* Green ground */
 }
