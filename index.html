@@ -2,13 +2,17 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport", content="width=device-width, initial-scale=1.0">
-        <title>Chrome Dinosaur Game</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <title>Unicorn Carrot Collection Game</title>
         <link rel="stylesheet" href="dino.css">
         <script src="dino.js"></script>
     </head>
     <body>
-        <h1>Chrome Dinosaur Game</h1>
+        <h1>Unicorn Carrot Collection Game</h1>
         <canvas id="board"></canvas>
+        <div>
+            <button id="playAgainBtn" onclick="resetGame()" style="margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Play Again</button>
+        </div>
+        <p style="margin-top: 10px;">Press Space/Arrow Up to jump or tap/click to play</p>
     </body>
 </html>
